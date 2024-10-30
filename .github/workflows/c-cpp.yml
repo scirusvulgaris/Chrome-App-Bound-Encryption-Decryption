@@ -16,18 +16,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up MSVC
+      - name: Set up MSVC and Compile
         shell: cmd
         run: |
           "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > installationPath.txt
           set /p installationPath=<installationPath.txt
           call "%installationPath%\VC\Auxiliary\Build\vcvars64.bat"
-      
-      - name: Build chrome_decrypt.cpp
-        shell: cmd
-        run: |
-          call "%installationPath%\VC\Auxiliary\Build\vcvars64.bat"
-          cl /EHsc chrome_decrypt.cpp ole32.lib oleaut32.lib shell32.lib version.lib comsuppw.lib advapi32.lib shlwapi.lib
+          cl /EHsc chrome_decrypt.cpp ole32.lib oleaut32.lib shell32.lib version.lib comsuppw.lib advapi32.lib shlwapi.lib /link /out:chrome_decrypt.exe
 
       - name: Save Build Artifacts
         if: success()
