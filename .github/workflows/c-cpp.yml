@@ -1,55 +1,37 @@
-name: Build Windows Executable
+name: C++ Build on Windows
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up MSVC
+        shell: cmd
+        run: |
+          "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > installationPath.txt
+          set /p installationPath=<installationPath.txt
+          call "%installationPath%\VC\Auxiliary\Build\vcvars64.bat"
       
-    - name: Build executable
-      shell: powershell
-      run: |
-        $vsPath = vswhere.exe -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-        $vcvarsPath = Join-Path $vsPath "VC\Auxiliary\Build\vcvars64.bat"
-        $buildCommand = "cl /EHsc chrome_decrypt.cpp ole32.lib oleaut32.lib shell32.lib version.lib comsuppw.lib /link /out:chrome_decrypt.exe"
-        cmd /c "call `"$vcvarsPath`" && $buildCommand"
-      
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: chrome-decrypt
-        path: chrome_decrypt.exe
-        
-    - name: Create Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.sha }}
-        release_name: Release ${{ github.sha }}
-        draft: false
-        prerelease: false
-        
-    - name: Upload Release Asset
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./chrome_decrypt.exe
-        asset_name: chrome_decrypt.exe
-        asset_content_type: application/octet-stream
+      - name: Build chrome_decrypt.cpp
+        shell: cmd
+        run: |
+          call "%installationPath%\VC\Auxiliary\Build\vcvars64.bat"
+          cl /EHsc chrome_decrypt.cpp ole32.lib oleaut32.lib shell32.lib version.lib comsuppw.lib advapi32.lib shlwapi.lib
+
+      - name: Save Build Artifacts
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: chrome_decrypt.exe
+          path: chrome_decrypt.exe
