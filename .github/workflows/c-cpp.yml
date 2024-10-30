@@ -21,8 +21,9 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       
     - name: Build executable
+      shell: cmd
       run: |
-        cl /EHsc chrome_decrypt.cpp oleaut32.lib shell32.lib advapi32.lib shlwapi.lib
+        cl /EHsc chrome_decrypt.cpp ole32.lib oleaut32.lib shell32.lib version.lib comsuppw.lib /link /out:chrome_decrypt.exe
       
     - name: Upload artifact
       uses: actions/upload-artifact@v3
