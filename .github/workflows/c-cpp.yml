@@ -17,13 +17,13 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.1
       
-    - name: Setup Developer Command Prompt
-      uses: ilammy/msvc-dev-cmd@v1
-      
     - name: Build executable
-      shell: cmd
+      shell: powershell
       run: |
-        cl /EHsc chrome_decrypt.cpp ole32.lib oleaut32.lib shell32.lib version.lib comsuppw.lib /link /out:chrome_decrypt.exe
+        $vsPath = vswhere.exe -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        $vcvarsPath = Join-Path $vsPath "VC\Auxiliary\Build\vcvars64.bat"
+        $buildCommand = "cl /EHsc chrome_decrypt.cpp ole32.lib oleaut32.lib shell32.lib version.lib comsuppw.lib /link /out:chrome_decrypt.exe"
+        cmd /c "call `"$vcvarsPath`" && $buildCommand"
       
     - name: Upload artifact
       uses: actions/upload-artifact@v3
