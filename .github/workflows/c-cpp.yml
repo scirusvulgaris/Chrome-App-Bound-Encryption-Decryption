@@ -27,11 +27,17 @@ jobs:
         msbuild-architecture: x64
 
     - name: Build with Visual Studio
+      shell: cmd
       run: |
-        cmd /c "\"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat\" && cl /EHsc chrome_decrypt.cpp oleaut32.lib shell32.lib advapi32.lib shlwapi.lib /link /out:chrome_decrypt.exe"
+        "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        cl /EHsc chrome_decrypt.cpp oleaut32.lib shell32.lib advapi32.lib shlwapi.lib
+
+    - name: Copy executable to Chrome directory
+      run: |
+        Copy-Item -Path "chrome_decrypt.exe" -Destination "C:\Program Files\Google\Chrome\Application"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: chrome_decrypt
-        path: chrome_decrypt.exe
+        path: C:\Program Files\Google\Chrome\Application\chrome_decrypt.exe
