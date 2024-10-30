@@ -28,8 +28,7 @@ jobs:
 
     - name: Build with Visual Studio
       run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        cl /EHsc chrome_decrypt.cpp oleaut32.lib shell32.lib advapi32.lib shlwapi.lib /link /out:chrome_decrypt.exe
+        cmd /c "\"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat\" && cl /EHsc chrome_decrypt.cpp oleaut32.lib shell32.lib advapi32.lib shlwapi.lib /link /out:chrome_decrypt.exe"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
