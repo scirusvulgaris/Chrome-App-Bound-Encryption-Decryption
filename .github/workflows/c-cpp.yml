@@ -17,20 +17,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
-
-    - name: Install Visual Studio Build Tools
+    - name: Set up Visual Studio
       uses: microsoft/setup-msbuild@v1.0.2
       with:
         vs-version: '[17.0,)'
-        msbuild-architecture: x64
 
-    - name: Build with Visual Studio
-      shell: cmd
-      run: |
-        "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        cl /EHsc chrome_decrypt.cpp oleaut32.lib shell32.lib advapi32.lib shlwapi.lib
+    - name: Build with cl
+      run: cl /EHsc chrome_decrypt.cpp oleaut32.lib shell32.lib advapi32.lib shlwapi.lib
 
     - name: Copy executable to Chrome directory
       run: |
